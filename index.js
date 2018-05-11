@@ -34,6 +34,35 @@ var encode = encodeURIComponent;
 var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 
 /**
+ * Is the codepoint a space or a horizontal tab?
+ *
+ * @param {number} code
+ * @return {boolean}
+ */
+function isWhitespace(code) {
+  return code === 0x20 || code === 0x09;
+}
+
+/**
+ * Trims the string of leading and trailing whitespace
+ *
+ * @param {string} str
+ * @param {number} start
+ * @param {number} end
+ * @return {string}
+ */
+
+function trim(str, start, end) {
+  while (start < end && isWhitespace(str.charCodeAt(start))) {
+    start++;
+  }
+  while (end > start && isWhitespace(str.charCodeAt(end - 1))) {
+    end--;
+  }
+  return str.slice(start, end);
+}
+
+/**
  * Parse a cookie header.
  *
  * Parse the given cookie header string into an object
@@ -74,11 +103,11 @@ function parse(str, options) {
       continue;
     }
 
-    var key = str.slice(index, equals).trim();
+    var key = trim(str, index, equals);
 
     // Only assign once.
     if (undefined === obj[key]) {
-      var val = str.slice(equals + 1, end).trim();
+      var val = trim(str, equals + 1, end);
 
       // Strip quoted values.
       if (val && '"' === val[0]) {
