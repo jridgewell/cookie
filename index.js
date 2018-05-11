@@ -87,7 +87,10 @@ function parse(str, options) {
 
       // Only decode when caller has a custom decoder,
       // or when we know a percent is in the value.
-      obj[key] =  tryDecode(val, dec);
+      if (dec !== decode || -1 !== val.indexOf('%')) {
+        val = tryDecode(val, dec);
+      }
+      obj[key] = val;
     }
 
     index = end + 1;
