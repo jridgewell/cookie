@@ -70,7 +70,7 @@ function parse(str, options) {
     // Semicolon detected in our cookie-pair,
     // backtrack from the equals sign to find our real starting index.
     if (end < equals) {
-      index = str.lastIndexOf(';', equals - 1);
+      index = str.lastIndexOf(';', equals - 1) + 1;
       continue;
     }
 
@@ -87,11 +87,7 @@ function parse(str, options) {
 
       // Only decode when caller has a custom decoder,
       // or when we know a percent is in the value.
-      if (dec !== decode || (-1 !== val.indexOf('%'))) {
-        val = tryDecode(val, dec);
-      }
-
-      obj[key] = val;
+      obj[key] =  tryDecode(val, dec);
     }
 
     index = end + 1;

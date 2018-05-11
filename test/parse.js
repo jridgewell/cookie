@@ -62,6 +62,13 @@ test('missing value', function() {
     }));
 });
 
+test('no equals', function() {
+  assert.deepEqual({ foo: '1', baz: '2' },
+    cookie.parse('foo;foo=1;bar;baz=2',{
+      decode: function(value) { return value; }
+    }));
+});
+
 test('assign only once', function() {
   assert.deepEqual({ foo: '%1', bar: 'bar' },
     cookie.parse('foo=%1;bar=bar;foo=boo'));
