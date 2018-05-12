@@ -75,7 +75,13 @@ function parse(str, options) {
 
     // only assign once
     if (undefined == obj[key]) {
-      obj[key] = tryDecode(val, dec);
+      // Only decode when caller has a custom decoder,
+      // or when we know a percent is in the value.
+      if (dec !== decode || -1 !== val.indexOf('%')) {
+        val = tryDecode(val, dec);
+      }
+
+      obj[key] = val;
     }
   }
 
