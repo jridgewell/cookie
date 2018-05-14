@@ -22,6 +22,7 @@ exports.serialize = serialize;
 
 var decode = decodeURIComponent;
 var encode = encodeURIComponent;
+var trimmest = require('trimmest');
 
 /**
  * RegExp to match field-content in RFC 7230 sec 3.2
@@ -32,35 +33,6 @@ var encode = encodeURIComponent;
  */
 
 var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
-
-/**
- * Is the codepoint a space or a horizontal tab?
- *
- * @param {number} code
- * @return {boolean}
- */
-function isWhitespace(code) {
-  return code === 0x20 || code === 0x09;
-}
-
-/**
- * Trims the string of leading and trailing whitespace
- *
- * @param {string} str
- * @param {number} start
- * @param {number} end
- * @return {string}
- */
-
-function trim(str, start, end) {
-  while (start < end && isWhitespace(str.charCodeAt(start))) {
-    start++;
-  }
-  while (end > start && isWhitespace(str.charCodeAt(end - 1))) {
-    end--;
-  }
-  return str.slice(start, end);
-}
 
 /**
  * Parse a cookie header.
@@ -84,7 +56,7 @@ function parse(str, options) {
   var dec = opt.decode || decode;
 
   var index = 0;
-  while (0 <= index) {
+  while (index < str.length) {
     var equals = str.indexOf('=', index);
     // No more cookie-pairs.
     if (-1 === equals) {
@@ -94,23 +66,21 @@ function parse(str, options) {
     var end = str.indexOf(';', index);
     if (-1 === end) {
       end = str.length;
-    }
-
-    // Semicolon detected in our cookie-pair,
-    // backtrack from the equals sign to find our real starting index.
-    if (end < equals) {
+    } else if (end < equals) {
+      // Semicolon detected in our cookie-pair,
+      // backtrack from the equals sign to find our real starting index.
       index = str.lastIndexOf(';', equals - 1) + 1;
       continue;
     }
 
-    var key = trim(str, index, equals);
+    var key = trimmest(str, index, equals);
 
     // Only assign once.
     if (undefined === obj[key]) {
-      var val = trim(str, equals + 1, end);
+      var val = trimmest(str, equals + 1, end);
 
       // Strip quoted values.
-      if (val && '"' === val[0]) {
+      if (0x22 === val.charCodeAt(0)) {
         val = val.slice(1, -1);
       }
 
